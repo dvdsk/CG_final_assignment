@@ -5,4 +5,6 @@ struct InputState
 	bool keyspress[SDLK_LAST];
 	//keys that are being held down
 	bool keysdown[SDLK_LAST];
+	int32_t mouse_rel_x;
+	int32_t mouse_rel_y;
 }; 

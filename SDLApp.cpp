@@ -88,41 +88,26 @@ void SDLApp::handleEvents(bool & running)
 	SDL_Event sdlevent;
 	while(SDL_PollEvent(&sdlevent))
 	{
-		if (sdlevent.type == SDL_QUIT)
-		{
+		if (sdlevent.type == SDL_QUIT) {
 			running = false;
-		}
-		else if (sdlevent.type == SDL_KEYDOWN)
-		{
-			if (sdlevent.key.keysym.sym == SDLK_ESCAPE)
-			{
+		} else if (sdlevent.type == SDL_KEYDOWN) {
+			if (sdlevent.key.keysym.sym == SDLK_ESCAPE) {
 				running = false;
-			}
-//			else if (sdlevent.key.keysym.sym == SDLK_w)
-//			{
-//				program.toggleWireFrame();//TODO make wireframe shit
-//			}
-//			else if (sdlevent.key.keysym.sym == SDLK_MINUS)
-//			{
-//				program.makeTerrainSmoother();//TODO make wireframe shit
-//			}
-//			else if (sdlevent.key.keysym.sym == SDLK_PLUS)
-//			{
-//				program.makeTerrainRougher();//TODO make wireframe shit
-//			}
-			else
-			{
+			} else {
 				inputstate.keyspress[sdlevent.key.keysym.sym] = true;
 				inputstate.keysdown[sdlevent.key.keysym.sym] = true;
 				program.update();
 			}
-		}
-		else if (sdlevent.type == SDL_KEYUP)
-		{
+		} else if (sdlevent.type == SDL_KEYUP) {
 			inputstate.keysdown[sdlevent.key.keysym.sym] = false;
-		}
-		else if (sdlevent.type == SDL_VIDEORESIZE)
-		{
+		} else if (sdlevent.type == SDL_MOUSEMOTION) {
+			printf("mouse motion: ");
+			printf("mouse pos: (%i,%i)\n",sdlevent.motion.x, sdlevent.motion.y);	
+			printf("rel movement: (%i,%i)\n",sdlevent.motion.xrel, sdlevent.motion.yrel);	
+			inputstate.mouse_rel_y = sdlevent.motion.yrel;
+			inputstate.mouse_rel_x = sdlevent.motion.xrel;
+			program.update();
+		} else if (sdlevent.type == SDL_VIDEORESIZE) {
 			width = sdlevent.resize.w;
 			height = sdlevent.resize.h;
 			//program.update(sdlevent.resize.w, sdlevent.resize.h);

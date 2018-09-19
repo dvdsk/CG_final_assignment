@@ -31,6 +31,7 @@ private:
 	Vector3 viewpoint, viewtarget;
 	void updateViewRatios();
 	float dx, dy, dz;
+	float yaw, pitch;  
 
 	//two buffers to store our vertex data
 	GLuint vertexbufferobject_position;

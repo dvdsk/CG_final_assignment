@@ -49,6 +49,8 @@ bool Workshop2::initialize()
 
 	viewpoint = Vector3(-150.0f, -400.0f, 300.0f);
 	viewtarget = Vector3(0.0f, 0.0f, 50.0f);
+	yaw = 0;
+	pitch = 0;
 
 	return true;
 }
@@ -75,75 +77,49 @@ void Workshop2::updateViewRatios(){
 
 void Workshop2::update()//, double deltatime)
 {
-	if (inputstate.keysdown[SDLK_w])
-	{
+	if (inputstate.keysdown[SDLK_w]) {
 		toggleWireFrame();
-	}
-	else if (inputstate.keysdown[SDLK_MINUS] || inputstate.keysdown[SDLK_KP_MINUS])
-	{
+	} else if (inputstate.keysdown[SDLK_MINUS] || inputstate.keysdown[SDLK_KP_MINUS]) {
 		makeTerrainSmoother();
-	}
-	else if (inputstate.keysdown[SDLK_EQUALS] || inputstate.keysdown[SDLK_KP_PLUS])
-	{
+	} else if (inputstate.keysdown[SDLK_EQUALS] || inputstate.keysdown[SDLK_KP_PLUS]) {
 		makeTerrainRougher();
-	}
-
-	//forward backward left right; translation
-	else if (inputstate.keysdown[SDLK_UP])
-	{
+	}		
+	//the viewpoint describes from where we look, we update it from movement key inputs here
+	else if (inputstate.keysdown[SDLK_UP]) {
 		updateViewRatios();
 		viewpoint.x() += 150.0f*dx;
 		viewpoint.y() += 150.0f*dy;
 		viewpoint.z() += 150.0f*dz;
-	}
-	else if (inputstate.keysdown[SDLK_DOWN]){
+	} else if (inputstate.keysdown[SDLK_DOWN]){
 		updateViewRatios();
 		viewpoint.x() -= 150.0f*dx;
 		viewpoint.y() -= 150.0f*dy;
 		viewpoint.z() -= 150.0f*dz;
-	}
-	else if (inputstate.keysdown[SDLK_LEFT])
-	{
+	} else if (inputstate.keysdown[SDLK_LEFT]) {
 		makeTerrainSmoother();
-	}
-	else if (inputstate.keysdown[SDLK_RIGHT])
-	{
+	} else if (inputstate.keysdown[SDLK_RIGHT]) {
 		makeTerrainRougher();
 	}	
-
-	//i j l k; rotations
-//	else if (inputstate.keysdown[SDLK_i])	{
-//		viewtarget-=viewpoint;
-//		viewtarget = viewtarget.rotateX(0.1f*viewtarget.x()/(viewtarget.x()+viewtarget.y() ));
-//		viewtarget = viewtarget.rotateY(0.1f*viewtarget.y()/(viewtarget.x()+viewtarget.y() ));
-//		viewtarget+=viewpoint;
-//	}
-	else if (inputstate.keysdown[SDLK_k]) {
-		float wx = viewpoint.x()/(viewpoint.x()+viewpoint.y());
-		float wy = viewpoint.y()/(viewpoint.x()+viewpoint.y());
-
-		viewtarget-=viewpoint;
-		viewtarget = viewtarget.rotateX(-0.1f*wx);
-		viewtarget = viewtarget.rotateY(-0.1f*wy);
-		viewtarget+=viewpoint;
-	}
-	//look left
-	else if (inputstate.keysdown[SDLK_j])	{
-		viewtarget-=viewpoint;
-		viewtarget = viewtarget.rotateZ(-0.5f);
-		viewtarget+=viewpoint;
-	}
-	else if (inputstate.keysdown[SDLK_l])	{
-		viewtarget-=viewpoint;
-		viewtarget = viewtarget.rotateZ(0.5f);
-		viewtarget+=viewpoint;
-	}
-
-	//mouse movement?
-	//viewpoint = Vector3(-150.0f, -400.0f, 300.0f);
-
-	//viewtarget = Vector3(0.0f, 50.0f, 0.0f);
-
+	//the viewtarget describes where we look at, it is dercribed here
+	float sensitivity = 0.05f;
+	float x = inputstate.mouse_rel_x * sensitivity;
+	float y = inputstate.mouse_rel_y * sensitivity;
+	
+	// update camera angles, no roll support
+	yaw += x;
+	pitch += y;  
+	if(pitch > 89.0f) pitch =  89.0f;
+	if(pitch < -89.0f) pitch = -89.0f;
+	
+	printf("%f,%f\n",yaw,pitch);
+	
+	printf("before (%f,%f,%f)\n",viewtarget.x(),viewtarget.y(),viewtarget.z());
+	
+    viewtarget = viewtarget.rotateX( degreesToRadians(yaw));
+    viewtarget = viewtarget.rotateY( degreesToRadians(pitch));
+	
+	printf("atfer (%f,%f,%f)\n", viewtarget.x(),viewtarget.y(),viewtarget.z());
+	
 	// TODO:
 	//Update the viewpoint / viewtarget here
 	//You can query keystates using eg. the boolean inputstate.keysdown[SDLK_LEFT]
@@ -158,9 +134,13 @@ void Workshop2::render()
 	
 	
 	//modelview transform matrix
+	//Matrix4 modelviewmatrix = Matrix4::lookAtMatrix(viewpoint,
+	                                                //viewpoint+viewtarget,
+	                                                //Vector3(0.0f, 0.0f, 1.0f));
 	Matrix4 modelviewmatrix = Matrix4::lookAtMatrix(viewpoint,
 	                                                viewtarget,
 	                                                Vector3(0.0f, 0.0f, 1.0f));
+
 	//projection transform matrix
 	Matrix4 projectionmatrix = Matrix4::perspectiveMatrix((float)M_PI_4, (float)width / height, 1.0f, 10000.0f);
 
