@@ -1,7 +1,5 @@
 #include "libs.h"
 #include "Workshop2.h"
- 
-
 
 Workshop2::Workshop2(InputState & inputstate) : inputstate(inputstate)
 {
@@ -172,14 +170,14 @@ void Workshop2::render()
 }
 
 
-Vector3 Workshop2::getTerrainVertex(std::vector<unsigned char> & heightmap, size_t x, size_t y)
+Vector3 Workshop2::getTerrainVertex(uint8_t* heightmap, size_t x, size_t y)
 {
 	//return the position of a point on the heightmap
 	//The y axis is reversed here
 	return Vector3(x - 256.0f, 256.0f - y, 
 	              (float)heightmap[y * 513 + x] * 0.5f * heightMultiplier);
 }
-Vector3 Workshop2::getTerrainNormal(std::vector<unsigned char> & heightmap, size_t x, size_t y)
+Vector3 Workshop2::getTerrainNormal(uint8_t* heightmap, size_t x, size_t y)
 {
 	//get the height difference along the X and Y directions
 	float dx, dy;
@@ -206,14 +204,19 @@ Vector3 Workshop2::getTerrainNormal(std::vector<unsigned char> & heightmap, size
 
 bool Workshop2::loadTerrain()
 {
-	//this array contains the heights at the terrain points
-	std::vector<unsigned char> heightmap(513 * 513);
+	////this array contains the heights at the terrain points
+	//std::vector<unsigned char> heightmap(513 * 513);
 
-	//read heightmap image file into array "heightmap"
-	std::ifstream terrainfile("heightmap.raw", std::ios::binary);
-	terrainfile.read(reinterpret_cast<char *>(&heightmap[0]), 513 * 513);
-	terrainfile.close();
+	////read heightmap image file into array "heightmap"
+	//std::ifstream terrainfile("heightmap.raw", std::ios::binary);
+	//terrainfile.read(reinterpret_cast<char *>(&heightmap[0]), 513 * 513);
+	//terrainfile.close();
 	
+	struct pngImage image = load_png();
+	printf("length:%zu, capacity:%zu, ptr:%zu\n", image.a.length, image.a.capacity, image.a.ptr);
+
+	uint8_t* heightmap = image.a.ptr;
+
 	//large arrays of position and normal vectors
 	//containing 512 x 512 tiles
 	//each tile consists of 2 triangles (3 * 2 = 6 vectors)

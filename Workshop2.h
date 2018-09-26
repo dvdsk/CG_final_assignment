@@ -1,7 +1,23 @@
 #include "InputState.h"
 #include "ShaderProgram.h"
 #include "geometry.h"
- 
+#include "iostream"
+
+struct dynamicArray {
+    size_t length;
+	size_t capacity;
+	uint8_t* ptr;
+};
+
+struct pngImage {
+	dynamicArray r;
+	dynamicArray g;
+	dynamicArray b;
+	dynamicArray a;
+};
+
+extern "C" struct pngImage load_png
+();
 
 class Workshop2
 {
@@ -40,7 +56,7 @@ private:
 	ShaderProgram terrainshader;
 
 
-	Vector3 getTerrainVertex(std::vector<unsigned char> & heightmap, size_t x, size_t y);
-	Vector3 getTerrainNormal(std::vector<unsigned char> & heightmap, size_t x, size_t y);
+	Vector3 getTerrainVertex(uint8_t* heightmap, size_t x, size_t y);
+	Vector3 getTerrainNormal(uint8_t* heightmap, size_t x, size_t y);
 	bool loadTerrain();
 };
