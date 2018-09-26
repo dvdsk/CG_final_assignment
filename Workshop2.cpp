@@ -106,24 +106,10 @@ void Workshop2::update()//, double deltatime)
 	float y = inputstate.mouse_rel_y * sensitivity;
 	
 	// update camera angles, no roll support
-	yaw += x;
-	pitch += y;  
-	if(pitch > 89.0f) pitch =  89.0f;
-	if(pitch < -89.0f) pitch = -89.0f;
-	
-	printf("%f,%f\n",yaw,pitch);
-	
-	printf("before (%f,%f,%f)\n",viewtarget.x(),viewtarget.y(),viewtarget.z());
-	
-    viewtarget = viewtarget.rotateX( degreesToRadians(yaw));
-    viewtarget = viewtarget.rotateY( degreesToRadians(pitch));
-	
-	printf("atfer (%f,%f,%f)\n", viewtarget.x(),viewtarget.y(),viewtarget.z());
-	
-	// TODO:
-	//Update the viewpoint / viewtarget here
-	//You can query keystates using eg. the boolean inputstate.keysdown[SDLK_LEFT]
-	//Feel free to add variables to class Workshop2 to contain more data on the viewpoint's position and orientation
+	viewtarget = viewtarget - viewpoint;
+    viewtarget = viewtarget.rotateZ(degreesToRadians(x));
+    viewtarget = viewtarget.rotateX(degreesToRadians(y));
+	viewtarget += viewpoint;
 }
 
 
