@@ -23,7 +23,7 @@ void SDLApp::run()
 		handleEvents(running);
 
 		newtime = SDL_GetTicks();
-		program.update(width, height, (newtime - lasttime) * 0.001);
+		program.update(width, height, (newtime - lasttime) );
 		lasttime = newtime;
 
 		program.render();
@@ -55,7 +55,12 @@ bool SDLApp::createWindow()
 
 	//set depth buffer to 24 bits for better precision
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
+	
+	//trap the mouse in the current window
+	SDL_WM_GrabInput( SDL_GRAB_ON );
+	SDL_ShowCursor( SDL_DISABLE );
+	mousCaptured = true;
+	
 	//set window title
 	SDL_WM_SetCaption("Computer Graphics Workshop 2: Mountains", NULL);
  
@@ -92,25 +97,30 @@ void SDLApp::handleEvents(bool & running)
 			running = false;
 		} else if (sdlevent.type == SDL_KEYDOWN) {
 			if (sdlevent.key.keysym.sym == SDLK_ESCAPE) {
-				running = false;
+				SDL_WM_GrabInput( SDL_GRAB_OFF );
+				SDL_ShowCursor( SDL_ENABLE );
+				mousCaptured = false;		
+				//running = false;
 			} else {
 				inputstate.keyspress[sdlevent.key.keysym.sym] = true;
-				inputstate.keysdown[sdlevent.key.keysym.sym] = true;
-				program.update();
+				inputstate.keysdown[sdlevent.key.keysym.sym] = true;				
 			}
 		} else if (sdlevent.type == SDL_KEYUP) {
 			inputstate.keysdown[sdlevent.key.keysym.sym] = false;
 		} else if (sdlevent.type == SDL_MOUSEMOTION) {
-			printf("mouse motion: ");
-			printf("mouse pos: (%i,%i)\n",sdlevent.motion.x, sdlevent.motion.y);	
-			printf("rel movement: (%i,%i)\n",sdlevent.motion.xrel, sdlevent.motion.yrel);	
 			inputstate.mouse_rel_y = sdlevent.motion.yrel;
 			inputstate.mouse_rel_x = sdlevent.motion.xrel;
-			program.update();
+			inputstate.mouse_moved = true;
+		} else if (sdlevent.type == SDL_MOUSEBUTTONDOWN) {
+			if (!mousCaptured) {
+				mousCaptured = true;
+				printf("grab on");
+				SDL_WM_GrabInput( SDL_GRAB_ON );
+				SDL_ShowCursor( SDL_DISABLE );
+			}				
 		} else if (sdlevent.type == SDL_VIDEORESIZE) {
 			width = sdlevent.resize.w;
 			height = sdlevent.resize.h;
-			//program.update(sdlevent.resize.w, sdlevent.resize.h);
 		}
 	}
 }

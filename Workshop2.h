@@ -27,7 +27,7 @@ public:
 	bool initialize();
 	//called before each render, deltatime is in seconds
 	void update(int width, int height, double deltatime);
-	void update();
+	void update(double deltatime);
 	//render the scene
 	void render();
 	//toggle wireframe on off
@@ -47,7 +47,6 @@ private:
 	Vector3 viewpoint, viewtarget;
 	void updateViewRatios();
 	float dx, dy, dz;
-	float yaw, pitch;  
 
 	//two buffers to store our vertex data
 	GLuint vertexbufferobject_position;

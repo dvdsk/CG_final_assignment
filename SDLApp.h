@@ -22,4 +22,5 @@ private:
 	void cleanUp();
 
 	void handleEvents(bool & running);
+	bool mousCaptured;
 };

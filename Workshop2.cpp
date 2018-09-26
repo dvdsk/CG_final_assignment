@@ -47,34 +47,24 @@ bool Workshop2::initialize()
 
 	viewpoint = Vector3(-150.0f, -400.0f, 300.0f);
 	viewtarget = Vector3(0.0f, 0.0f, 50.0f);
-	yaw = 0;
-	pitch = 0;
 
 	return true;
 }
 
-void Workshop2::update(int width, int height, double deltatime)
+void Workshop2::updateViewRatios(){
+	Vector3 direction = viewtarget - viewpoint;
+	float total = direction.x()+direction.y()+ direction.z();
+
+	dx = direction.x() / total;
+	dy = direction.y() / total;
+	dz = direction.z() / total;
+}
+
+void Workshop2::update(int width, int height, double deltatime)//, double deltatime)
 {
 	this->width = width;
 	this->height = height;
-
-	// TODO:
-	//Update the viewpoint / viewtarget here
-	//You can query keystates using eg. the boolean inputstate.keysdown[SDLK_LEFT]
-	//Feel free to add variables to class Workshop2 to contain more data on the viewpoint's position and orientation
-
-}
-
-void Workshop2::updateViewRatios(){
-	float total = viewtarget.x()+viewtarget.y()+ viewtarget.z();
-
-	dx = viewtarget.x() / total;
-	dy = viewtarget.y() / total;
-	dz = viewtarget.z() / total;
-}
-
-void Workshop2::update()//, double deltatime)
-{
+	
 	if (inputstate.keysdown[SDLK_w]) {
 		toggleWireFrame();
 	} else if (inputstate.keysdown[SDLK_MINUS] || inputstate.keysdown[SDLK_KP_MINUS]) {
@@ -83,31 +73,37 @@ void Workshop2::update()//, double deltatime)
 		makeTerrainRougher();
 	}		
 	//the viewpoint describes from where we look, we update it from movement key inputs here
-	else if (inputstate.keysdown[SDLK_UP]) {
+	else if (inputstate.keysdown[SDLK_UP]) {//move forward
 		updateViewRatios();
-		viewpoint.x() += 150.0f*dx;
-		viewpoint.y() += 150.0f*dy;
-		viewpoint.z() += 150.0f*dz;
-	} else if (inputstate.keysdown[SDLK_DOWN]){
+		float sensitivity = 0.05f*deltatime;
+		printf("forward\n %i %i %i\n",viewpoint.x(),viewpoint.y(),viewpoint.z());
+		viewpoint.x() += sensitivity*dx;
+		viewpoint.y() += sensitivity*dy;
+		viewpoint.z() += sensitivity*dz;
+	} else if (inputstate.keysdown[SDLK_DOWN]){//move back
 		updateViewRatios();
-		viewpoint.x() -= 150.0f*dx;
-		viewpoint.y() -= 150.0f*dy;
-		viewpoint.z() -= 150.0f*dz;
+		float sensitivity = 0.05f*deltatime;
+		viewpoint.x() -= sensitivity*dx;
+		viewpoint.y() -= sensitivity*dy;
+		viewpoint.z() -= sensitivity*dz;
 	} else if (inputstate.keysdown[SDLK_LEFT]) {
 		makeTerrainSmoother();
 	} else if (inputstate.keysdown[SDLK_RIGHT]) {
 		makeTerrainRougher();
 	}	
 	//the viewtarget describes where we look at, it is dercribed here
-	float sensitivity = 0.05f;
-	float x = inputstate.mouse_rel_x * sensitivity;
-	float y = inputstate.mouse_rel_y * sensitivity;
-	
-	// update camera angles, no roll support
-	viewtarget = viewtarget - viewpoint;
-    viewtarget = viewtarget.rotateZ(degreesToRadians(x));
-    viewtarget = viewtarget.rotateX(degreesToRadians(y));
-	viewtarget += viewpoint;
+	if (inputstate.mouse_moved){
+		float sensitivity = 0.05f;
+		float x = inputstate.mouse_rel_x * sensitivity;
+		float y = inputstate.mouse_rel_y * sensitivity;
+		inputstate.mouse_moved = false;
+		
+		// update camera angles, no roll support
+		viewtarget = viewtarget - viewpoint;
+		viewtarget = viewtarget.rotateZ(degreesToRadians(x));
+		viewtarget = viewtarget.rotateX(degreesToRadians(y));
+		viewtarget += viewpoint;
+	}
 }
 
 
@@ -116,11 +112,6 @@ void Workshop2::render()
 	//set the size of the rendering area
 	glViewport(0, 0, width, height);
 	
-	
-	//modelview transform matrix
-	//Matrix4 modelviewmatrix = Matrix4::lookAtMatrix(viewpoint,
-	                                                //viewpoint+viewtarget,
-	                                                //Vector3(0.0f, 0.0f, 1.0f));
 	Matrix4 modelviewmatrix = Matrix4::lookAtMatrix(viewpoint,
 	                                                viewtarget,
 	                                                Vector3(0.0f, 0.0f, 1.0f));
@@ -199,7 +190,7 @@ bool Workshop2::loadTerrain()
 	//terrainfile.close();
 	
 	struct pngImage image = load_png();
-	printf("length:%zu, capacity:%zu, ptr:%zu\n", image.a.length, image.a.capacity, image.a.ptr);
+	//printf("length:%zu, capacity:%zu, ptr:%zu\n", image.a.length, image.a.capacity, image.a.ptr);
 
 	uint8_t* heightmap = image.a.ptr;
 
