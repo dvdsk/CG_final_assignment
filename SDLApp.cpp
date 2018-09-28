@@ -52,6 +52,9 @@ bool SDLApp::createWindow()
 		inputstate.keyspress[i] = false;
 		inputstate.keysdown[i] = false;
 	}
+	inputstate.mouse_moved = false;
+	inputstate.mouse_speed = 1;
+
 
 	//set depth buffer to 24 bits for better precision
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
@@ -118,6 +121,8 @@ void SDLApp::handleEvents(bool & running)
 				SDL_WM_GrabInput( SDL_GRAB_ON );
 				SDL_ShowCursor( SDL_DISABLE );
 			}				
+		//} else if (sdlevent.type == SDL_MOUSEWHEEL) {
+			//inputstate.mouse_speed + 1 * event.wheel.y;
 		} else if (sdlevent.type == SDL_VIDEORESIZE) {
 			width = sdlevent.resize.w;
 			height = sdlevent.resize.h;

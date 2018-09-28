@@ -76,7 +76,7 @@ void Workshop2::update(int width, int height, double deltatime)//, double deltat
 	else if (inputstate.keysdown[SDLK_UP]) {//move forward
 		updateViewRatios();
 		float sensitivity = 0.05f*deltatime;
-		printf("forward\n %i %i %i\n",viewpoint.x(),viewpoint.y(),viewpoint.z());
+		//printf("forward\n %i %i %i\n",viewpoint.x(),viewpoint.y(),viewpoint.z());
 		viewpoint.x() += sensitivity*dx;
 		viewpoint.y() += sensitivity*dy;
 		viewpoint.z() += sensitivity*dz;
@@ -139,11 +139,18 @@ void Workshop2::render()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
+	//set vertex color data
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferobject_colors);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+
 	//draw the data
 	glDrawArrays(GL_TRIANGLES, 0, 512 * 512 * 6);
 	
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
 }
 
 
@@ -190,7 +197,8 @@ bool Workshop2::loadTerrain()
 	//terrainfile.close();
 	
 	struct pngImage image = load_png();
-	//printf("length:%zu, capacity:%zu, ptr:%zu\n", image.a.length, image.a.capacity, image.a.ptr);
+	printf("length:%zu, capacity:%zu, ptr:%zu\n", image.rgb.length, image.rgb.capacity, image.rgb.ptr);
+	printf("value:%f\n", *(image.rgb.ptr+50));
 
 	uint8_t* heightmap = image.a.ptr;
 
@@ -239,6 +247,11 @@ bool Workshop2::loadTerrain()
 	glGenBuffers(1, &vertexbufferobject_normal);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferobject_normal);
 	glBufferData(GL_ARRAY_BUFFER, 512 * 512 * 6 * 3 * sizeof(float), &normals[0], GL_STATIC_DRAW);
+
+	//repeat of the above, now for the color array
+	glGenBuffers(1, &vertexbufferobject_colors);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferobject_colors);
+	glBufferData(GL_ARRAY_BUFFER, 512 * 512 * 6 * 3 * sizeof(float), image.rgb.ptr, GL_STATIC_DRAW);
 
 	return true;
 }

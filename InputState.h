@@ -9,4 +9,6 @@ struct InputState
 	int32_t mouse_rel_x;
 	int32_t mouse_rel_y;
 	bool mouse_moved;
+	
+	float mouse_speed;
 }; 

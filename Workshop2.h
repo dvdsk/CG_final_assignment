@@ -3,17 +3,21 @@
 #include "geometry.h"
 #include "iostream"
 
-struct dynamicArray {
+struct dynamicArray_f32 {
+    size_t length;
+	size_t capacity;
+	float_t* ptr;
+};
+
+struct dynamicArray_u8 {
     size_t length;
 	size_t capacity;
 	uint8_t* ptr;
 };
 
 struct pngImage {
-	dynamicArray r;
-	dynamicArray g;
-	dynamicArray b;
-	dynamicArray a;
+	dynamicArray_f32 rgb;
+	dynamicArray_u8 a;
 };
 
 extern "C" struct pngImage load_png
@@ -51,6 +55,7 @@ private:
 	//two buffers to store our vertex data
 	GLuint vertexbufferobject_position;
 	GLuint vertexbufferobject_normal;
+	GLuint vertexbufferobject_colors;
 
 	ShaderProgram terrainshader;
 
