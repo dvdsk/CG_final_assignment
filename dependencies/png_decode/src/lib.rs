@@ -48,7 +48,7 @@ unsafe extern "C" fn deallocate_rust_buffer(ptr: *mut u8, capacity: size_t) {
 
 #[no_mangle]
 pub extern fn load_png() -> pngImage {
-	let f = File::open("test2.png").unwrap();
+	let f = File::open("test4.png").unwrap();
 	let reader = BufReader::new(f);
 	
 	let image = image::load(reader,image::ImageFormat::PNG).unwrap();
@@ -56,18 +56,22 @@ pub extern fn load_png() -> pngImage {
 		println!("opened image, width: {}, height: {}",rgba_image.width(),rgba_image.height());
 		
 		let numb_of_pixels = (rgba_image.width()*rgba_image.height()) as usize;
-		let mut rgb = Vec::with_capacity(numb_of_pixels*3);
+		let mut rgb = Vec::with_capacity(numb_of_pixels*3*6);
 		let mut a = Vec::with_capacity(numb_of_pixels);
 		
 		for pixel in rgba_image.pixels() {
 			let sub_pixels = pixel.channels();
 			for _ in 0..6{
-				rgb.push((sub_pixels[0]/255) as f32);
-				rgb.push((sub_pixels[2]/255) as f32);
-				rgb.push((sub_pixels[1]/255) as f32);
+				rgb.push(sub_pixels[0] as f32/255.); //red
+				rgb.push(sub_pixels[1] as f32/255.); //green
+				rgb.push(sub_pixels[2] as f32/255.); //blue
 			}
 			a.push(sub_pixels[3]);
 		}
+		
+		//for (i, pixelval) in rgb.iter().enumerate(){
+			//if *pixelval > 0. { println!("nonzero at index: {}",i);} 
+		//}
 		
 		pngImage {
 			rgb: vec_to_struct(rgb),
@@ -75,7 +79,7 @@ pub extern fn load_png() -> pngImage {
 		}
 		
 	} else {
-
+		println!("could not load png1");
 		pngImage {
 			rgb: vec_to_struct(vec!(0.0)),
 			a: vec_to_struct(vec!(0)),

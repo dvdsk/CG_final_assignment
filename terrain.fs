@@ -12,6 +12,7 @@ vec4 snowlineColor = vec4(0.1, 0.1, 0.1, 1.0);
 
 void main()
 {
+	//vec4 basecolor = vec4(_color, 1.0);
 	vec4 basecolor = vec4(_color, 1.0);
 	//vec4 basecolor = vec4(0.3, 0.3, 0.3, 1.0);
     //vec4 basecolor = vec4(_position.x/513, _position.y/513, _position.z/513, 1.0);

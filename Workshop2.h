@@ -59,7 +59,6 @@ private:
 
 	ShaderProgram terrainshader;
 
-
 	Vector3 getTerrainVertex(uint8_t* heightmap, size_t x, size_t y);
 	Vector3 getTerrainNormal(uint8_t* heightmap, size_t x, size_t y);
 	bool loadTerrain();
