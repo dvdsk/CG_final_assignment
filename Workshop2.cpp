@@ -193,10 +193,11 @@ Vector3 Workshop2::getTerrainNormal(uint8_t* heightmap, size_t x, size_t y)
 bool Workshop2::loadTerrain()
 {
 	//read heightmap image file into array "heightmap"
-	struct pngImage image = load_png();
-	uint8_t* heightmap = image.a.ptr;
-	terrain_height = image.height;
-	terrain_width = image.width;
+	struct Image_rgb colors = load_rgb_png();
+	struct Image_seperate_channels alpha_and_specular = load_channels_png();
+	uint8_t* heightmap = alpha_and_specular.r.ptr;
+	terrain_height = alpha_and_specular.height;
+	terrain_width =  alpha_and_specular.width;
 
 	//large arrays of position and normal vectors
 	//containing 512 x 512 tiles
@@ -246,6 +247,6 @@ bool Workshop2::loadTerrain()
 	//repeat of the above, now for the color array
 	glGenBuffers(1, &vertexbufferobject_colors);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferobject_colors);
-	glBufferData(GL_ARRAY_BUFFER, w * h * 6 * 3 * sizeof(float), image.rgb.ptr, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, w * h * 6 * 3 * sizeof(float), colors.rgb.ptr, GL_STATIC_DRAW);
 	return true;
 }

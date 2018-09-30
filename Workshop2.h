@@ -15,15 +15,22 @@ struct dynamicArray_u8 {
 	uint8_t* ptr;
 };
 
-struct pngImage {
+struct Image_rgb {
 	size_t width;
     size_t height;
 	dynamicArray_f32 rgb;
-	dynamicArray_u8 a;
 };
 
-extern "C" struct pngImage load_png
-();
+struct Image_seperate_channels {
+	size_t width;
+    size_t height;
+	dynamicArray_u8 r;
+	dynamicArray_u8 g;
+	dynamicArray_u8 b;
+};
+
+extern "C" struct Image_rgb load_rgb_png();
+extern "C" struct Image_seperate_channels load_channels_png();
 
 class Workshop2
 {
