@@ -12,19 +12,19 @@ MANIFEST_DIR:=$(ROOT_DIR)/dependencies/png_decode
 
 main: main.cpp
 	$(CC) $(CPPFLAGS) -c $(SOURCES)
-	$(CC) $(OBJECTS) $(CPPFLAGS) -L$(RUST_LIB) $(LDFLAGS) -lpng_decode -o mountain
+	$(CC) $(OBJECTS) $(CPPFLAGS) -L$(RUST_LIB) $(LDFLAGS) -lpng_decode -o landscape
 
 static: main.cpp
 	$(CC) $(CPPFLAGS) -c $(SOURCES)
-	$(CC) $(OBJECTS) $(CPPFLAGS) $(LDFLAGS) -o mountain_statically_linked -L$(RUST_LIB) -Wl,-Bstatic -lpng_decode -Wl,-Bdynamic 
+	$(CC) $(OBJECTS) $(CPPFLAGS) $(LDFLAGS) -o landscape_statically_linked -L$(RUST_LIB) -Wl,-Bstatic -lpng_decode -Wl,-Bdynamic 
 
 .PHONY: clean
 clean:
-	rm -rf $(OBJECTS) mountain mountain_statically_linked
+	rm -rf $(OBJECTS) landscape landscape_statically_linked
 	
 .PHONY: run
 run:
-	LD_LIBRARY_PATH=$(RUST_LIB) ./mountain
+	LD_LIBRARY_PATH=$(RUST_LIB) ./landscape
 	
 .PHONY: deps
 deps:
