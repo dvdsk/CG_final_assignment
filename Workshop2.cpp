@@ -129,6 +129,8 @@ void Workshop2::render()
 	glUniformMatrix4fv(glGetUniformLocation(terrainshader.getProgram(), "matmodelview"), 1, GL_TRUE, modelviewmatrix.elements());
 	glUniformMatrix4fv(glGetUniformLocation(terrainshader.getProgram(), "matprojection"), 1, GL_TRUE, projectionmatrix.elements());
 	
+	glUniform3f(glGetUniformLocation(terrainshader.getProgram(), "camera_position"), viewpoint.x(),viewpoint.y(),viewpoint.z());
+	
 	//set vertex position data
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferobject_position);
 	glEnableVertexAttribArray(0);
@@ -197,9 +199,6 @@ bool Workshop2::loadTerrain()
 	//terrainfile.close();
 	
 	struct pngImage image = load_png();
-	printf("length:%zu, capacity:%zu, ptr:%zu\n", image.rgb.length, image.rgb.capacity, image.rgb.ptr);
-	printf("value:%f\n", *(image.rgb.ptr+100));
-
 	uint8_t* heightmap = image.a.ptr;
 
 	//large arrays of position and normal vectors
@@ -207,10 +206,6 @@ bool Workshop2::loadTerrain()
 	//each tile consists of 2 triangles (3 * 2 = 6 vectors)
 	std::vector<Vector3> positions(512 * 512 * 6);
 	std::vector<Vector3> normals(512 * 512 * 6);
-	std::vector<Vector3> testColors(513 * 513 * 6,Vector3(0.3,0.0,0.0));
-	printf("test colors size:%i\n", testColors.size()*sizeof(Vector3(0.3,0.0,0.0)));
-	printf("test colors num floats:%i\n", testColors.size()*3);
-	printf("vec3 lenght:%i\n", sizeof(Vector3(0.3,0.0,0.0)));
 
 	size_t x;
 	size_t y;
@@ -255,6 +250,5 @@ bool Workshop2::loadTerrain()
 	glGenBuffers(1, &vertexbufferobject_colors);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferobject_colors);
 	glBufferData(GL_ARRAY_BUFFER, 513 * 513 * 6 * 3 * sizeof(float), image.rgb.ptr, GL_STATIC_DRAW);
-	//glBufferData(GL_ARRAY_BUFFER, 513 * 513 * 6 * 3 * sizeof(float), &testColors[0], GL_STATIC_DRAW);
 	return true;
 }

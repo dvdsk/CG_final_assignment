@@ -48,7 +48,7 @@ unsafe extern "C" fn deallocate_rust_buffer(ptr: *mut u8, capacity: size_t) {
 
 #[no_mangle]
 pub extern fn load_png() -> pngImage {
-	let f = File::open("test4.png").unwrap();
+	let f = File::open("test2.png").unwrap();
 	let reader = BufReader::new(f);
 	
 	let image = image::load(reader,image::ImageFormat::PNG).unwrap();
@@ -68,10 +68,6 @@ pub extern fn load_png() -> pngImage {
 			}
 			a.push(sub_pixels[3]);
 		}
-		
-		//for (i, pixelval) in rgb.iter().enumerate(){
-			//if *pixelval > 0. { println!("nonzero at index: {}",i);} 
-		//}
 		
 		pngImage {
 			rgb: vec_to_struct(rgb),
