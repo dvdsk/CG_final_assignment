@@ -192,14 +192,7 @@ Vector3 Workshop2::getTerrainNormal(uint8_t* heightmap, size_t x, size_t y)
 
 bool Workshop2::loadTerrain()
 {
-	////this array contains the heights at the terrain points
-	//std::vector<unsigned char> heightmap(513 * 513);
-
-	////read heightmap image file into array "heightmap"
-	//std::ifstream terrainfile("heightmap.raw", std::ios::binary);
-	//terrainfile.read(reinterpret_cast<char *>(&heightmap[0]), 513 * 513);
-	//terrainfile.close();
-	
+	//read heightmap image file into array "heightmap"
 	struct pngImage image = load_png();
 	uint8_t* heightmap = image.a.ptr;
 	terrain_height = image.height;
@@ -234,7 +227,6 @@ bool Workshop2::loadTerrain()
 			normals[(y * w + x) * 6 + 5] = getTerrainNormal(heightmap, x, y);
 		}
 	}
-	
 	
 	//Use the arrays "positions" and "normals" to fill two vertex buffer objects
 	//These are essentially arrays of data to be stored in the GPU memory

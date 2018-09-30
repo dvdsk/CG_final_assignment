@@ -50,7 +50,7 @@ unsafe extern "C" fn deallocate_rust_buffer(ptr: *mut u8, capacity: size_t) {
 
 #[no_mangle]
 pub extern fn load_png() -> pngImage {
-	let f = File::open("test7.png").unwrap();
+	let f = File::open("test8.png").unwrap();
 	let reader = BufReader::new(f);
 	
 	let image = image::load(reader,image::ImageFormat::PNG).unwrap();
@@ -72,8 +72,8 @@ pub extern fn load_png() -> pngImage {
 		}
 		
 		pngImage {
-			width: rgba_image.width() as usize,
-			height: rgba_image.height() as usize,
+			width: rgba_image.width() as size_t,
+			height: rgba_image.height() as size_t,
 			rgb: vec_to_struct(rgb),
 			a: vec_to_struct(a),
 		}
