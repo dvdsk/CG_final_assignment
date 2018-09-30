@@ -57,7 +57,7 @@ fn vec_to_struct<T>(mut vec: Vec<T>) -> dynamicArray<T> {
 
 #[no_mangle]
 pub extern fn load_rgb_png() -> Image_rgb {
-	let f = File::open("test8.png").unwrap();
+	let f = File::open("assets/colormap.png").unwrap();
 	let reader = BufReader::new(f);
 	
 	let image = image::load(reader,image::ImageFormat::PNG).unwrap();
@@ -69,7 +69,7 @@ pub extern fn load_rgb_png() -> Image_rgb {
 		
 		for pixel in rgb_image.pixels() {
 			let sub_pixels = pixel.channels();
-			for _ in 0..6{
+			for _ in 0..6{//6 vertices per pixel so 6 color values per pixel
 				rgb.push(sub_pixels[0] as f32/255.); //red
 				rgb.push(sub_pixels[1] as f32/255.); //green
 				rgb.push(sub_pixels[2] as f32/255.); //blue
@@ -95,7 +95,7 @@ pub extern fn load_rgb_png() -> Image_rgb {
 
 #[no_mangle]
 pub extern fn load_channels_png() -> Image_seperate_channels {
-	let f = File::open("test8.png").unwrap();
+	let f = File::open("assets/heightmap.png").unwrap();
 	let reader = BufReader::new(f);
 	
 	let image = image::load(reader,image::ImageFormat::PNG).unwrap();
@@ -109,9 +109,9 @@ pub extern fn load_channels_png() -> Image_seperate_channels {
 		
 		for pixel in rgb_image.pixels() {
 			let sub_pixels = pixel.channels();
-			r.push(sub_pixels[0] as f32/255.); //red
-			g.push(sub_pixels[1] as f32/255.); //green
-			b.push(sub_pixels[2] as f32/255.); //blue
+			r.push(sub_pixels[0]); //red
+			g.push(sub_pixels[1]); //green
+			b.push(sub_pixels[2]); //blue
 		}
 		
 		Image_seperate_channels {
@@ -127,9 +127,9 @@ pub extern fn load_channels_png() -> Image_seperate_channels {
 		Image_seperate_channels {
 			width: 0,
 			height: 0,			
-			r: vec_to_struct(vec!(0.0)),
-			g: vec_to_struct(vec!(0.0)),
-			b: vec_to_struct(vec!(0.0)),			
+			r: vec_to_struct(vec!(0)),
+			g: vec_to_struct(vec!(0)),
+			b: vec_to_struct(vec!(0)),			
 		}		
 		
 	}

@@ -23,5 +23,4 @@ void main()
 	
 	// Transform the vertex position to screencoordinates
 	gl_Position = matprojection * (matmodelview * in_position);
-	
 }

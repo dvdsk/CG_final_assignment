@@ -22,27 +22,26 @@ float material_shininess = 0.0;
 
 void main()
 {
-	//vec3 material_diff = _color;
-	//vec3 position = _position.xyz;
+	vec3 material_diff = _color;
+	vec3 position = _position.xyz;
 	
-	////calc diffuse lighting
-	//vec3 normal = normalize(_normal);
-	//float projection = clamp(dot(normal, normalize(light_position - position)),0.,1.);
-	//vec3 I_diff = material_diff * light_intensity * projection;
+	//calc diffuse lighting
+	vec3 normal = normalize(_normal);
+	float projection = clamp(dot(normal, normalize(light_position - position)),0.,1.);
+	vec3 I_diff = material_diff * light_intensity * projection;
 	
-	//////calc specular lighting
-	//vec3 H = normalize(light_position - position) 
-		     //+ normalize(camera_position - position);
-	//H = normalize(H);
-	//float dotPow = pow(dot(normal,H),material_shininess);
-	//vec3 I_spec = material_specular*light_intensity*dotPow;
+	////calc specular lighting
+	vec3 H = normalize(light_position - position) 
+		     + normalize(camera_position - position);
+	H = normalize(H);
+	float dotPow = pow(dot(normal,H),material_shininess);
+	vec3 I_spec = material_specular*light_intensity*dotPow;
 
-    //vec3 I = (I_spec+I_diff);
-	//I = clamp(I, 0, 1);
+    vec3 I = (I_spec+I_diff);
+	I = clamp(I, 0, 1);
 	
-	//fragcolor = vec4(I, 1);
+	fragcolor = vec4(I, 1);
 	
-	//simplified lighting model
-    fragcolor = _normal.z*vec4(_color,1);
-    //fragcolor = vec4(1,0.4,0.4,1);
+	////simplified lighting model
+    //fragcolor = _normal.z*vec4(_color,1);
 }

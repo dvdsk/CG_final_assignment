@@ -128,7 +128,7 @@ void Workshop2::render()
 	//set our matrices as "uniform" variables
 	glUniformMatrix4fv(glGetUniformLocation(terrainshader.getProgram(), "matmodelview"), 1, GL_TRUE, modelviewmatrix.elements());
 	glUniformMatrix4fv(glGetUniformLocation(terrainshader.getProgram(), "matprojection"), 1, GL_TRUE, projectionmatrix.elements());
-	
+
 	glUniform3f(glGetUniformLocation(terrainshader.getProgram(), "camera_position"), viewpoint.x(),viewpoint.y(),viewpoint.z());
 	
 	//set vertex position data
@@ -145,7 +145,6 @@ void Workshop2::render()
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferobject_colors);
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
 
 	//draw the data
 	glDrawArrays(GL_TRIANGLES, 0, terrain_width * terrain_height * 6);
@@ -218,7 +217,6 @@ bool Workshop2::loadTerrain()
 			positions[(y * w + x) * 6 + 3] = getTerrainVertex(heightmap, x + 1, y + 1);
 			positions[(y * w + x) * 6 + 4] = getTerrainVertex(heightmap, x, y + 1);
 			positions[(y * w + x) * 6 + 5] = getTerrainVertex(heightmap, x, y);
-
 
 			normals[(y * w + x) * 6 + 0] = getTerrainNormal(heightmap, x, y);
 			normals[(y * w + x) * 6 + 1] = getTerrainNormal(heightmap, x + 1, y);
