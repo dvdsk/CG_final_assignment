@@ -16,6 +16,8 @@ struct dynamicArray_u8 {
 };
 
 struct pngImage {
+	size_t width;
+    size_t height;
 	dynamicArray_f32 rgb;
 	dynamicArray_u8 a;
 };
@@ -56,7 +58,8 @@ private:
 	GLuint vertexbufferobject_position;
 	GLuint vertexbufferobject_normal;
 	GLuint vertexbufferobject_colors;
-
+	size_t terrain_width;
+	size_t terrain_height;
 	ShaderProgram terrainshader;
 
 	Vector3 getTerrainVertex(uint8_t* heightmap, size_t x, size_t y);

@@ -93,9 +93,9 @@ void Workshop2::update(int width, int height, double deltatime)//, double deltat
 	}	
 	//the viewtarget describes where we look at, it is dercribed here
 	if (inputstate.mouse_moved){
-		float sensitivity = 0.05f;
-		float x = inputstate.mouse_rel_x * sensitivity;
-		float y = inputstate.mouse_rel_y * sensitivity;
+		float sensitivity =-0.05f;
+		float x = inputstate.mouse_rel_x * -1 * sensitivity;
+		float y = inputstate.mouse_rel_y * -1 * sensitivity;
 		inputstate.mouse_moved = false;
 		
 		// update camera angles, no roll support
@@ -148,7 +148,7 @@ void Workshop2::render()
 
 
 	//draw the data
-	glDrawArrays(GL_TRIANGLES, 0, 512 * 512 * 6);
+	glDrawArrays(GL_TRIANGLES, 0, terrain_width * terrain_height * 6);
 	
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
@@ -161,24 +161,26 @@ Vector3 Workshop2::getTerrainVertex(uint8_t* heightmap, size_t x, size_t y)
 	//return the position of a point on the heightmap
 	//The y axis is reversed here
 	return Vector3(x - 256.0f, 256.0f - y, 
-	              (float)heightmap[y * 513 + x] * 0.5f * heightMultiplier);
+	              (float)heightmap[y * terrain_width + x] * 0.5f * heightMultiplier);
 }
 Vector3 Workshop2::getTerrainNormal(uint8_t* heightmap, size_t x, size_t y)
 {
 	//get the height difference along the X and Y directions
+	size_t w = terrain_width;
+	size_t h = terrain_height;
 	float dx, dy;
 	if (x == 0)
-		dx = (float)heightmap[y * 513 + (x + 1)] * 0.5f - (float)heightmap[y * 513 + x] * 0.5f;
-	else if (x == 512)
-		dx = (float)heightmap[y * 513 + x] * 0.5f - (float)heightmap[y * 513 + (x - 1)] * 0.5f;
+		dx = (float)heightmap[y * w + (x + 1)] * 0.5f - (float)heightmap[y * w + x] * 0.5f;
+	else if (x == terrain_width-1)
+		dx = (float)heightmap[y * w + x] * 0.5f - (float)heightmap[y * w + (x - 1)] * 0.5f;
 	else
-		dx = (float)heightmap[y * 513 + (x + 1)] * 0.5f - (float)heightmap[y * 513 + (x - 1)] * 0.5f;
+		dx = (float)heightmap[y * w + (x + 1)] * 0.5f - (float)heightmap[y * w + (x - 1)] * 0.5f;
 	if (y == 0)
-		dy = (float)heightmap[(y + 1) * 513 + x] * 0.5f - (float)heightmap[y * 513 + x] * 0.5f;
-	else if (y == 512)
-		dy = (float)heightmap[y * 513 + x] * 0.5f - (float)heightmap[(y - 1) * 513 + x] * 0.5f;
+		dy = (float)heightmap[(y + 1) * w + x] * 0.5f - (float)heightmap[y * w + x] * 0.5f;
+	else if (y == terrain_height-1)
+		dy = (float)heightmap[y * w + x] * 0.5f - (float)heightmap[(y - 1) * w + x] * 0.5f;
 	else
-		dy = (float)heightmap[(y + 1) * 513 + x] * 0.5f - (float)heightmap[(y - 1) * 513 + x] * 0.5f;
+		dy = (float)heightmap[(y + 1) * w + x] * 0.5f - (float)heightmap[(y - 1) * w + x] * 0.5f;
 
 	//use this to compute a normal vector:
 	//u = (1, 0, dx); v = (0, 1, dy)
@@ -200,33 +202,36 @@ bool Workshop2::loadTerrain()
 	
 	struct pngImage image = load_png();
 	uint8_t* heightmap = image.a.ptr;
+	terrain_height = image.height;
+	terrain_width = image.width;
 
 	//large arrays of position and normal vectors
 	//containing 512 x 512 tiles
 	//each tile consists of 2 triangles (3 * 2 = 6 vectors)
-	std::vector<Vector3> positions(512 * 512 * 6);
-	std::vector<Vector3> normals(512 * 512 * 6);
+	std::vector<Vector3> positions((terrain_height-1) * (terrain_width-1) * 6);
+	std::vector<Vector3> normals((terrain_height-1) * (terrain_width-1) * 6);
 
-	size_t x;
-	size_t y;
-	for (y = 0; y < 512; y++) {
-		for (x = 0; x < 512; x++) {
-			float height = (float)heightmap[y * 513 + (x)];//50.0f;
+	size_t x, y;
+	size_t w = terrain_width-1;
+	size_t h = terrain_height-1;
+	for (y = 0; y < h; y++) {
+		for (x = 0; x < w; x++) {
+			float height = (float)heightmap[y * (w+1) + (x)];//50.0f;
 
-			positions[(y * 512 + x) * 6 + 0] = getTerrainVertex(heightmap, x, y);
-			positions[(y * 512 + x) * 6 + 1] = getTerrainVertex(heightmap, x + 1, y);
-			positions[(y * 512 + x) * 6 + 2] = getTerrainVertex(heightmap, x + 1, y + 1);
-			positions[(y * 512 + x) * 6 + 3] = getTerrainVertex(heightmap, x + 1, y + 1);
-			positions[(y * 512 + x) * 6 + 4] = getTerrainVertex(heightmap, x, y + 1);
-			positions[(y * 512 + x) * 6 + 5] = getTerrainVertex(heightmap, x, y);
+			positions[(y * w + x) * 6 + 0] = getTerrainVertex(heightmap, x, y);
+			positions[(y * w + x) * 6 + 1] = getTerrainVertex(heightmap, x + 1, y);
+			positions[(y * w + x) * 6 + 2] = getTerrainVertex(heightmap, x + 1, y + 1);
+			positions[(y * w + x) * 6 + 3] = getTerrainVertex(heightmap, x + 1, y + 1);
+			positions[(y * w + x) * 6 + 4] = getTerrainVertex(heightmap, x, y + 1);
+			positions[(y * w + x) * 6 + 5] = getTerrainVertex(heightmap, x, y);
 
 
-			normals[(y * 512 + x) * 6 + 0] = getTerrainNormal(heightmap, x, y);
-			normals[(y * 512 + x) * 6 + 1] = getTerrainNormal(heightmap, x + 1, y);
-			normals[(y * 512 + x) * 6 + 2] = getTerrainNormal(heightmap, x + 1, y + 1);
-			normals[(y * 512 + x) * 6 + 3] = getTerrainNormal(heightmap, x + 1, y + 1);
-			normals[(y * 512 + x) * 6 + 4] = getTerrainNormal(heightmap, x, y + 1);
-			normals[(y * 512 + x) * 6 + 5] = getTerrainNormal(heightmap, x, y);
+			normals[(y * w + x) * 6 + 0] = getTerrainNormal(heightmap, x, y);
+			normals[(y * w + x) * 6 + 1] = getTerrainNormal(heightmap, x + 1, y);
+			normals[(y * w + x) * 6 + 2] = getTerrainNormal(heightmap, x + 1, y + 1);
+			normals[(y * w + x) * 6 + 3] = getTerrainNormal(heightmap, x + 1, y + 1);
+			normals[(y * w + x) * 6 + 4] = getTerrainNormal(heightmap, x, y + 1);
+			normals[(y * w + x) * 6 + 5] = getTerrainNormal(heightmap, x, y);
 		}
 	}
 	
@@ -239,16 +244,16 @@ bool Workshop2::loadTerrain()
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferobject_position);
 	//send the data to the GPU
 	//arguments after GL_ARRAY_BUFFER: size of data in bytes, pointer to start of data, expected method of updating the data
-	glBufferData(GL_ARRAY_BUFFER, 512 * 512 * 6 * 3 * sizeof(float), &positions[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, w * h * 6 * 3 * sizeof(float), &positions[0], GL_STATIC_DRAW);
 	
 	//repeat of the above, now for the normal array
 	glGenBuffers(1, &vertexbufferobject_normal);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferobject_normal);
-	glBufferData(GL_ARRAY_BUFFER, 512 * 512 * 6 * 3 * sizeof(float), &normals[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, w * h * 6 * 3 * sizeof(float), &normals[0], GL_STATIC_DRAW);
 
 	//repeat of the above, now for the color array
 	glGenBuffers(1, &vertexbufferobject_colors);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferobject_colors);
-	glBufferData(GL_ARRAY_BUFFER, 513 * 513 * 6 * 3 * sizeof(float), image.rgb.ptr, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, w * h * 6 * 3 * sizeof(float), image.rgb.ptr, GL_STATIC_DRAW);
 	return true;
 }

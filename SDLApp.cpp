@@ -60,7 +60,7 @@ bool SDLApp::createWindow()
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	
 	//trap the mouse in the current window
-	SDL_WM_GrabInput( SDL_GRAB_ON );
+	SDL_WM_GrabInput( SDL_GRAB_ON ); //TODO reenable
 	SDL_ShowCursor( SDL_DISABLE );
 	mousCaptured = true;
 	
@@ -100,7 +100,7 @@ void SDLApp::handleEvents(bool & running)
 			running = false;
 		} else if (sdlevent.type == SDL_KEYDOWN) {
 			if (sdlevent.key.keysym.sym == SDLK_ESCAPE) {
-				SDL_WM_GrabInput( SDL_GRAB_OFF );
+				SDL_WM_GrabInput( SDL_GRAB_OFF );//TODO reenable
 				SDL_ShowCursor( SDL_ENABLE );
 				mousCaptured = false;		
 				//running = false;

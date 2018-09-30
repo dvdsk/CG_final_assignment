@@ -22,6 +22,8 @@ pub struct dynamicArray<T> {
 
 #[repr(C)]
 pub struct pngImage {
+	width: size_t,
+	height: size_t,
 	rgb: dynamicArray<f32>,
 	a: dynamicArray<u8>,
 }
@@ -48,7 +50,7 @@ unsafe extern "C" fn deallocate_rust_buffer(ptr: *mut u8, capacity: size_t) {
 
 #[no_mangle]
 pub extern fn load_png() -> pngImage {
-	let f = File::open("test2.png").unwrap();
+	let f = File::open("test7.png").unwrap();
 	let reader = BufReader::new(f);
 	
 	let image = image::load(reader,image::ImageFormat::PNG).unwrap();
@@ -70,6 +72,8 @@ pub extern fn load_png() -> pngImage {
 		}
 		
 		pngImage {
+			width: rgba_image.width() as usize,
+			height: rgba_image.height() as usize,
 			rgb: vec_to_struct(rgb),
 			a: vec_to_struct(a),
 		}
@@ -77,6 +81,8 @@ pub extern fn load_png() -> pngImage {
 	} else {
 		println!("could not load png1");
 		pngImage {
+			width: 0,
+			height: 0,			
 			rgb: vec_to_struct(vec!(0.0)),
 			a: vec_to_struct(vec!(0)),
 		}		
