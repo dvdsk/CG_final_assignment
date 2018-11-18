@@ -10,8 +10,8 @@ in vec3 in_color;
 // End of header part
 
 // Variables from vertex to fragment shader
-out vec3 _normal;
 out vec4 _position;
+out vec3 _normal;
 out vec3 _color;
 
 void main()

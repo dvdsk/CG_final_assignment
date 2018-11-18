@@ -65,15 +65,13 @@ pub extern fn load_rgb_png() -> Image_rgb {
 		println!("opened image, width: {}, height: {}",rgb_image.width(),rgb_image.height());
 		
 		let numb_of_pixels = (rgb_image.width()*rgb_image.height()) as usize;
-		let mut rgb = Vec::with_capacity(numb_of_pixels*3*6);
+		let mut rgb = Vec::with_capacity(numb_of_pixels*3);
 		
 		for pixel in rgb_image.pixels() {
 			let sub_pixels = pixel.channels();
-			for _ in 0..6{//6 vertices per pixel so 6 color values per pixel
-				rgb.push(sub_pixels[0] as f32/255.); //red
-				rgb.push(sub_pixels[1] as f32/255.); //green
-				rgb.push(sub_pixels[2] as f32/255.); //blue
-			}
+			rgb.push(sub_pixels[0] as f32/255.); //red
+			rgb.push(sub_pixels[1] as f32/255.); //green
+			rgb.push(sub_pixels[2] as f32/255.); //blue
 		}
 		
 		Image_rgb {

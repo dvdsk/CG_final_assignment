@@ -19,6 +19,12 @@ bool ShaderProgram::loadShaderProgram(const std::string & name)
 	p = glCreateProgram();
 	glAttachShader(p, vs);
 	glAttachShader(p, fs);
+	
+	glBindAttribLocation(p, 0, "in_position");
+	glBindAttribLocation(p, 1, "in_normal");
+	glBindAttribLocation(p, 2, "in_color");
+	glBindAttribLocation(p, 3, "in_waterpos");
+	
 	glLinkProgram(p);
 
 	glGetProgramiv(p, GL_LINK_STATUS, &result);

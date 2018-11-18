@@ -61,15 +61,21 @@ private:
 	void updateViewRatios();
 	float dx, dy, dz;
 
-	//two buffers to store our vertex data
+	ShaderProgram terrainshader;
+	//three buffers to store our vertex data
 	GLuint vertexbufferobject_position;
 	GLuint vertexbufferobject_normal;
 	GLuint vertexbufferobject_colors;
 	size_t terrain_width;
 	size_t terrain_height;
-	ShaderProgram terrainshader;
+	
+	ShaderProgram watershader;
+	GLuint vertexbufferobject_water_position;
 
 	Vector3 getTerrainVertex(uint8_t* heightmap, size_t x, size_t y);
 	Vector3 getTerrainNormal(uint8_t* heightmap, size_t x, size_t y);
+	Vector3 getTerrainColor(Image_rgb image, size_t x, size_t y);
 	bool loadTerrain();
+	Vector3 getWaterVertex(size_t x, size_t y);
+	bool loadWater();
 };

@@ -6,8 +6,8 @@ uniform vec3 camera_position;
 out vec4 fragcolor; //instead using build in variable gl_FragColor
 
 // Variables from vertex to fragment shader
-in vec3 _normal; //normal vector
 in vec4 _position; //position vector
+in vec3 _normal; //normal vector
 in vec3 _color;
 
 // Light properties

@@ -33,8 +33,15 @@ bool Workshop2::initialize()
 	//attempt to load our terrain data
 	if (!loadTerrain())
 		return false;
+	if (!loadWater())
+		return false;
 
 	if (!terrainshader.loadShaderProgram("terrain"))
+	{
+		std::cout << terrainshader.getErrorMessage() << std::endl;
+		return false;
+	}
+	if (!terrainshader.loadShaderProgram("water"))
 	{
 		std::cout << terrainshader.getErrorMessage() << std::endl;
 		return false;
@@ -128,9 +135,9 @@ void Workshop2::render()
 	//set our matrices as "uniform" variables
 	glUniformMatrix4fv(glGetUniformLocation(terrainshader.getProgram(), "matmodelview"), 1, GL_TRUE, modelviewmatrix.elements());
 	glUniformMatrix4fv(glGetUniformLocation(terrainshader.getProgram(), "matprojection"), 1, GL_TRUE, projectionmatrix.elements());
-
 	glUniform3f(glGetUniformLocation(terrainshader.getProgram(), "camera_position"), viewpoint.x(),viewpoint.y(),viewpoint.z());
 	
+	//draw terrain 
 	//set vertex position data
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferobject_position);
 	glEnableVertexAttribArray(0);
@@ -152,6 +159,18 @@ void Workshop2::render()
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+	
+	//water
+//	//use the terrain shader
+//	glUseProgram(watershader.getProgram());
+//	//set water data
+//	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferobject_water_position);
+//	glEnableVertexAttribArray(3);
+//	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
+//	
+//	//draw the data
+//	glDrawArrays(GL_TRIANGLES, 0, terrain_width * terrain_height * 6);
+//	glDisableVertexAttribArray(3);
 }
 
 
@@ -188,11 +207,21 @@ Vector3 Workshop2::getTerrainNormal(uint8_t* heightmap, size_t x, size_t y)
 	float sizefactor = 1.0f / sqrt(dx * dx + dy * dy + 1.0f);
 	return Vector3(-dx * sizefactor, -dy * sizefactor, 1.0f * sizefactor);
 }
+Vector3 Workshop2::getTerrainColor(Image_rgb image, size_t x, size_t y)
+{
+	//return the position of a point on the heightmap
+	//The y axis is reversed here
+	float* array = image.rgb.ptr;
+	return Vector3((float)array[y * terrain_width *3 + x*3+0], 
+	               (float)array[y * terrain_width *3 + x*3+1], 
+	               (float)array[y * terrain_width *3 + x*3+2]);
+}
+
 
 bool Workshop2::loadTerrain()
 {
 	//read heightmap image file into array "heightmap"
-	struct Image_rgb colors = load_rgb_png();
+	struct Image_rgb img_colors = load_rgb_png();
 	struct Image_seperate_channels alpha_and_specular = load_channels_png();
 	uint8_t* heightmap = alpha_and_specular.r.ptr;
 	terrain_height = alpha_and_specular.height;
@@ -203,6 +232,7 @@ bool Workshop2::loadTerrain()
 	//each tile consists of 2 triangles (3 * 2 = 6 vectors)
 	std::vector<Vector3> positions((terrain_height-1) * (terrain_width-1) * 6);
 	std::vector<Vector3> normals((terrain_height-1) * (terrain_width-1) * 6);
+	std::vector<Vector3> colors((terrain_height-1) * (terrain_width-1) * 6);
 
 	size_t x, y;
 	size_t w = terrain_width-1;
@@ -224,6 +254,13 @@ bool Workshop2::loadTerrain()
 			normals[(y * w + x) * 6 + 3] = getTerrainNormal(heightmap, x + 1, y + 1);
 			normals[(y * w + x) * 6 + 4] = getTerrainNormal(heightmap, x, y + 1);
 			normals[(y * w + x) * 6 + 5] = getTerrainNormal(heightmap, x, y);
+
+			colors[(y * w + x) * 6 + 0] = getTerrainColor(img_colors, x, y);
+			colors[(y * w + x) * 6 + 1] = getTerrainColor(img_colors, x + 1, y);
+			colors[(y * w + x) * 6 + 2] = getTerrainColor(img_colors, x + 1, y + 1);
+			colors[(y * w + x) * 6 + 3] = getTerrainColor(img_colors, x + 1, y + 1);
+			colors[(y * w + x) * 6 + 4] = getTerrainColor(img_colors, x, y + 1);
+			colors[(y * w + x) * 6 + 5] = getTerrainColor(img_colors, x, y);
 		}
 	}
 	
@@ -245,6 +282,37 @@ bool Workshop2::loadTerrain()
 	//repeat of the above, now for the color array
 	glGenBuffers(1, &vertexbufferobject_colors);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferobject_colors);
-	glBufferData(GL_ARRAY_BUFFER, w * h * 6 * 3 * sizeof(float), colors.rgb.ptr, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, w * h * 6 * 3 * sizeof(float), &colors[0], GL_STATIC_DRAW);
 	return true;
 }
+
+Vector3 Workshop2::getWaterVertex(size_t x, size_t y)
+{
+	//return the position of a point on the heightmap
+	//The y axis is reversed here
+	return Vector3(x - 256.0f, 256.0f - y, 100);
+}
+
+bool Workshop2::loadWater()
+{
+	std::vector<Vector3> positions((terrain_height-1) * (terrain_width-1) * 6);
+	size_t x, y;
+	size_t w = terrain_width-1;
+	size_t h = terrain_height-1;
+	for (y = 0; y < h; y++) {
+		for (x = 0; x < w; x++) {
+			positions[(y * w + x) * 6 + 0] = getWaterVertex( x, y);
+			positions[(y * w + x) * 6 + 1] = getWaterVertex( x + 1, y);
+			positions[(y * w + x) * 6 + 2] = getWaterVertex( x + 1, y + 1);
+			positions[(y * w + x) * 6 + 3] = getWaterVertex( x + 1, y + 1);
+			positions[(y * w + x) * 6 + 4] = getWaterVertex( x, y + 1);
+			positions[(y * w + x) * 6 + 5] = getWaterVertex( x, y);	        
+	    }
+	}
+	
+	glGenBuffers(1, &vertexbufferobject_water_position);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferobject_water_position);
+	glBufferData(GL_ARRAY_BUFFER, w * h * 6 * 3 * sizeof(float), &positions[0], GL_STATIC_DRAW);
+	return true;
+}
+
