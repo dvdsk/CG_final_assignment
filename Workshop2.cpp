@@ -41,11 +41,11 @@ bool Workshop2::initialize()
 		std::cout << terrainshader.getErrorMessage() << std::endl;
 		return false;
 	}
-	if (!terrainshader.loadShaderProgram("water"))
-	{
-		std::cout << terrainshader.getErrorMessage() << std::endl;
-		return false;
-	}
+	// if (!terrainshader.loadShaderProgram("water"))
+	// {
+	// 	std::cout << terrainshader.getErrorMessage() << std::endl;
+	// 	return false;
+	// }
 
 	//enable depth testing and set to "Less or Equal" mode
 	//only pixels that are closer or equally close are shown
@@ -97,7 +97,7 @@ void Workshop2::update(int width, int height, double deltatime)//, double deltat
 		makeTerrainSmoother();
 	} else if (inputstate.keysdown[SDLK_RIGHT]) {
 		makeTerrainRougher();
-	}	
+	}
 	//the viewtarget describes where we look at, it is dercribed here
 	if (inputstate.mouse_moved){
 		float sensitivity =-0.05f;
