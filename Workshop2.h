@@ -3,34 +3,7 @@
 #include "geometry.h"
 #include "iostream"
 
-struct dynamicArray_f32 {
-    size_t length;
-	size_t capacity;
-	float_t* ptr;
-};
-
-struct dynamicArray_u8 {
-    size_t length;
-	size_t capacity;
-	uint8_t* ptr;
-};
-
-struct Image_rgb {
-	size_t width;
-    size_t height;
-	dynamicArray_f32 rgb;
-};
-
-struct Image_seperate_channels {
-	size_t width;
-    size_t height;
-	dynamicArray_u8 r;
-	dynamicArray_u8 g;
-	dynamicArray_u8 b;
-};
-
-extern "C" struct Image_rgb load_rgb_png();
-extern "C" struct Image_seperate_channels load_channels_png();
+#include "png_decode/png_decode.h"
 
 class Workshop2
 {
@@ -68,13 +41,13 @@ private:
 	GLuint vertexbufferobject_colors;
 	size_t terrain_width;
 	size_t terrain_height;
-	
+
 	ShaderProgram watershader;
 	GLuint vertexbufferobject_water_position;
 
 	Vector3 getTerrainVertex(uint8_t* heightmap, size_t x, size_t y);
 	Vector3 getTerrainNormal(uint8_t* heightmap, size_t x, size_t y);
-	Vector3 getTerrainColor(Image_rgb image, size_t x, size_t y);
+	Vector3 getTerrainColor(float* array, size_t x, size_t y);
 	bool loadTerrain();
 	Vector3 getWaterVertex(size_t x, size_t y);
 	bool loadWater();

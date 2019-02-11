@@ -22,8 +22,12 @@
 \documentclass[a4paper, 11pt]{article} % Font size (can be 10pt, 11pt or 12pt) and paper size (remove a4paper for US letter paper)
 
 \usepackage[protrusion=true,expansion=true]{microtype} % Better typography
+
 \usepackage{graphicx} % Required for including pictures
+\graphicspath{ {screenshots/} }
+
 \usepackage{wrapfig} % Allows in-line images
+\usepackage{listings}
 
 \usepackage{mathpazo} % Use the Palatino font
 \usepackage[T1]{fontenc} % Required for accented characters
@@ -50,7 +54,7 @@
 %	TITLE
 %----------------------------------------------------------------------------------------
 
-\title{\textbf{Unnecessarily Long Essay Title}\\ % Title
+\title{\textbf{Skipping the textures}\\ % Title
 Computer Graphics final assignment} % Subtitle
 
 \author{\textsc{David Kleingeld} % Author
@@ -94,20 +98,52 @@ By using more vertices we can put in the same amount of detail as using a textur
 
 \section*{Difficulties}
 
-There where 2 major hurdles in this project: Creating a manuverable camera and mapping colors to vertices from files. The camera is needed to check if the colors are applied to the vertices as intended. It was however a challange connecting the linear algebra behind the required transformation to the existing code base. The biggest and hardest problem was mapping the colors.
+There where 2 major hurdles in this project: Creating a manuverable camera and mapping colors to vertices from files. The camera is needed to check if the colors are applied to the vertices as intended. It was however a challange connecting the linear algebra behind the required transformation to the existing code base.
+
+The hardest problem was mapping the colors to the vertices correctly. We loaded in a png image and splitting it into rgb float arrays. Then we extended the loadterrain function to correctly set the color information. However once this was send to the gpu this resulted in a strange color pattern. Clearly te colors where applied to the wrong vertices. Eventually we found the ommission of 'glBindAttribLocation' was the cause. Though not needed for the position and normal shader variables omitting to set the attribute location for the color information caused the latter to be interperted in a wrong order.
+
+Thus changing the shaderloading function from:
+\begin{lstlisting}
+	p = glCreateProgram();
+	glAttachShader(p, vs);
+	glAttachShader(p, fs);
+	glLinkProgram(p);
+\end{lstlisting}
+
+to:
+\begin{lstlisting}
+	p = glCreateProgram();
+	glAttachShader(p, vs);
+	glAttachShader(p, fs);
+
+	glBindAttribLocation(p, 0, "in_position");
+	glBindAttribLocation(p, 1, "in_normal");
+	glBindAttribLocation(p, 2, "in_color");
+	glBindAttribLocation(p, 3, "in_waterpos");
+
+	glLinkProgram(p);
+\end{lstlisting}
+solved the colors being mappend incorrectly.
 
 %------------------------------------------------
 
+
 \section*{Usage}
 
-Fusce in nibh augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. In dictum accumsan sapien, ut hendrerit nisi. Phasellus ut nulla mauris. Phasellus sagittis nec odio sed posuere. Vestibulum porttitor dolor quis suscipit bibendum. Mauris risus lectus, cursus vitae hendrerit posuere, congue ac est. Suspendisse commodo eu eros non cursus. Mauris ultrices venenatis dolor, sed aliquet odio tempor pellentesque. Duis ultricies, mauris id lobortis vulputate, tellus turpis eleifend elit, in gravida leo tortor ultricies est. Maecenas vitae ipsum at dui sodales condimentum a quis dui. Nam mi sapien, lobortis ac blandit eget, dignissim quis nunc.
+\subsection*{compiling}
+The project can be compiled using the included makefile. It requires libsdl1.2 dev and libglew-dev to compile.
 
-\begin{enumerate}
-\item First numbered list item
-\item Second numbered list item
-\end{enumerate}
+\subsection*{executing}
+To run use 'make run'. The program will take a few seconds to generate vertices from hightmap and pre map colors to the generated vertices. Then the mouse and arrow keys can be used to look and move around the world. The program captures the mouse, it can be released by pressing escape. Then to quit either close the window or press ctrl+c in the terminal.
 
-Donec luctus tincidunt mauris, non ultrices ligula aliquam id. Sed varius, magna a faucibus congue, arcu tellus pellentesque nisl, vel laoreet magna eros et magna. Vivamus lobortis elit eu dignissim ultrices. Fusce erat nulla, ornare at dolor quis, rhoncus venenatis velit. Donec sed elit mi. Sed semper tellus a convallis viverra. Maecenas mi lorem, placerat sit amet sem quis, adipiscing tincidunt turpis. Cras a urna et tellus dictum eleifend. Fusce dignissim lectus risus, in bibendum tortor lacinia interdum.
+\subsection*{changing assets}
+The hightmap and colormap can be changed by replacing the files colormap.png and heightmap.png in the assets folder. For the heightmap only the red channel is used. Brighter red results in heigher terrain. The default hightmap has a resolution of 1024x1024. The colormap should match these dimensions. Though larger dimensions are supported it is not recommended as the number of generated vertices will become to high to render smoothly.
+
+\section*{Conclusion}
+
+Though simple and instructive we do not recommend this method. To get any amount of detail you require a large amount of different colors and thus vertices. This results in a lot of textices that do not change the geometry but do tax performance. This neglects that geometry is often implied using colors, think about darker areas between objects implying the objects are popping out. Using this you need a less complicated 3d model to get the same appearend detail. This is not an option while using vertices for coloring.
+
+\section*{References}
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
@@ -118,5 +154,49 @@ Donec luctus tincidunt mauris, non ultrices ligula aliquam id. Sed varius, magna
 \bibliography{sample}
 
 %----------------------------------------------------------------------------------------
+
+\section*{Screenshots}
+
+
+\begin{figure}[ht]
+\caption{image of a flat area while showing a wire frame on top}
+\centering
+\includegraphics[width=0.5\textwidth]{wire_frame}
+\end{figure}
+
+
+
+\begin{figure}[ht]
+\caption{top down view showing the gradient}
+\centering
+\includegraphics[width=0.5\textwidth]{down_view}
+\end{figure}
+
+
+
+\begin{figure}[ht]
+\caption{shows the details in the landscape at some distance}
+\centering
+\includegraphics[width=0.5\textwidth]{landscape}
+\end{figure}
+
+
+
+\begin{figure}[ht]
+\caption{closeup showing low appearent geometry resolution}
+\centering
+\includegraphics[width=0.5\textwidth]{shows_gradient}
+\end{figure}
+
+
+
+\begin{figure}[ht]
+\caption{showing the side of the terrain}
+\centering
+\includegraphics[width=0.5\textwidth]{side_view}
+\end{figure}
+
+
+
 
 \end{document}
