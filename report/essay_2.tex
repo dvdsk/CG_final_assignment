@@ -28,6 +28,9 @@
 
 \usepackage{wrapfig} % Allows in-line images
 \usepackage{listings}
+\usepackage{hyperref}
+\usepackage{fontawesome}
+\usepackage{enumerate}
 
 \usepackage{mathpazo} % Use the Palatino font
 \usepackage[T1]{fontenc} % Required for accented characters
@@ -36,6 +39,8 @@
 \makeatletter
 \renewcommand\@biblabel[1]{\textbf{#1.}} % Change the square brackets for each bibliography item from '[1]' to '1.'
 \renewcommand{\@listI}{\itemsep=0pt} % Reduce the space between items in the itemize and enumerate environments and the bibliography
+\newcommand*{\github}[1]{\def\@github{#1}}
+
 
 \renewcommand{\maketitle}{ % Customize the title - do not edit title and author name here, see the TITLE block below
 \begin{flushright} % Right align
@@ -57,6 +62,8 @@
 \title{\textbf{Skipping the textures}\\ % Title
 Computer Graphics final assignment} % Subtitle
 
+\github{https://github.com/dskleingeld/CG_final_assignment}
+
 \author{\textsc{David Kleingeld} % Author
 \\{\textit{Leiden University}}} % Institution
 
@@ -75,10 +82,10 @@ Computer Graphics final assignment} % Subtitle
 %\renewcommand{\abstractname}{Summary} % Uncomment to change the name of the abstract to something else
 
 \begin{abstract}
-Morbi tempor congue porta. Proin semper, leo vitae faucibus dictum, metus mauris lacinia lorem, ac congue leo felis eu turpis. Sed nec nunc pellentesque, gravida eros at, porttitor ipsum. Praesent consequat urna a lacus lobortis ultrices eget ac metus. In tempus hendrerit rhoncus. Mauris dignissim turpis id sollicitudin lacinia. Praesent libero tellus, fringilla nec ullamcorper at, ultrices id nulla. Phasellus placerat a tellus a malesuada.
+Here we try to render a basic landscape without using textures. Most computer graphics programs make use of textures to apply color to the vertices. One of the major advantages of using textures is that they allow more that 2 colors between vertices. Not using textures makes painting colors live from the program easier. We do not recommend this method. To get a good amount of detail in a scene a large amount of vertices is require this heavily taxes performance.
 \end{abstract}
 
-\hspace*{3,6mm}\textit{Keywords:} lorem , ipsum , dolor , sit amet , lectus % Keywords
+\hspace*{3,6mm}\textit{Keywords:} Render , No Textures , Vertices % Keywords
 
 \vspace{30pt} % Some vertical space between the abstract and first section
 
@@ -100,7 +107,7 @@ By using more vertices we can put in the same amount of detail as using a textur
 
 There where 2 major hurdles in this project: Creating a manuverable camera and mapping colors to vertices from files. The camera is needed to check if the colors are applied to the vertices as intended. It was however a challange connecting the linear algebra behind the required transformation to the existing code base.
 
-The hardest problem was mapping the colors to the vertices correctly. We loaded in a png image and splitting it into rgb float arrays. Then we extended the loadterrain function to correctly set the color information. However once this was send to the gpu this resulted in a strange color pattern. Clearly te colors where applied to the wrong vertices. Eventually we found the ommission of 'glBindAttribLocation' was the cause. Though not needed for the position and normal shader variables omitting to set the attribute location for the color information caused the latter to be interperted in a wrong order.
+The hardest problem was sending colors to the gpu orderd correctly. We loaded in a png image and splitting it into rgb float arrays. Then we extended the loadterrain function to correctly set the color information. However once this was send to the gpu this resulted in a strange color pattern. Clearly te colors where applied to the wrong vertices. Eventually we found the ommission of 'glBindAttribLocation' was the cause. Though not needed for the position and normal shader variables omitting to set the attribute location for the color information caused the latter to be interperted in a wrong order.
 
 Thus changing the shaderloading function from:
 \begin{lstlisting}
@@ -131,10 +138,10 @@ solved the colors being mappend incorrectly.
 \section*{Usage}
 
 \subsection*{compiling}
-The project can be compiled using the included makefile. It requires libsdl1.2 dev and libglew-dev to compile.
+The project can be compiled using the included makefile. It requires libsdl1.2 dev and libglew-dev to compile. To compile using the makefile, type "make". This will create an exacutable called: landscape.
 
 \subsection*{executing}
-To run use 'make run'. The program will take a few seconds to generate vertices from hightmap and pre map colors to the generated vertices. Then the mouse and arrow keys can be used to look and move around the world. The program captures the mouse, it can be released by pressing escape. Then to quit either close the window or press ctrl+c in the terminal.
+To start the program run the exacutable landscape (usually: ./landscape). The program will take a few seconds to generate vertices from hightmap and pre map colors to the generated vertices. Then the mouse and arrow keys can be used to look and move around the world. The program captures the mouse, it can be released by pressing escape. Then to quit either close the window or press ctrl+c in the terminal.
 
 \subsection*{changing assets}
 The hightmap and colormap can be changed by replacing the files colormap.png and heightmap.png in the assets folder. For the heightmap only the red channel is used. Brighter red results in heigher terrain. The default hightmap has a resolution of 1024x1024. The colormap should match these dimensions. Though larger dimensions are supported it is not recommended as the number of generated vertices will become to high to render smoothly.
@@ -143,7 +150,26 @@ The hightmap and colormap can be changed by replacing the files colormap.png and
 
 Though simple and instructive we do not recommend this method. To get any amount of detail you require a large amount of different colors and thus vertices. This results in a lot of textices that do not change the geometry but do tax performance. This neglects that geometry is often implied using colors, think about darker areas between objects implying the objects are popping out. Using this you need a less complicated 3d model to get the same appearend detail. This is not an option while using vertices for coloring.
 
+\newpage
 \section*{References}
+Third party code:
+\begin{itemize}
+\item Workshop 2 from the computer graphics course
+\end{itemize}
+
+Third party libaries:
+\begin{itemize}
+\item C++ standard libary
+\item SDL 1.2
+\item glew
+\item LodePNG by Lode Vandevenne, https://github.com/lvandeve/lodepng
+\end{itemize}
+
+Assets:
+\begin{itemize}
+\item Heightmaps by artech7, https://www.deviantart.com/artech7/art/Free-Terrain-Heightmap-497251666
+\end{itemize}
+
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
@@ -161,7 +187,7 @@ Though simple and instructive we do not recommend this method. To get any amount
 \begin{figure}[ht]
 \caption{image of a flat area while showing a wire frame on top}
 \centering
-\includegraphics[width=0.5\textwidth]{wire_frame}
+\includegraphics[width=0.9\textwidth]{wire_frame}
 \end{figure}
 
 
@@ -169,7 +195,7 @@ Though simple and instructive we do not recommend this method. To get any amount
 \begin{figure}[ht]
 \caption{top down view showing the gradient}
 \centering
-\includegraphics[width=0.5\textwidth]{down_view}
+\includegraphics[width=0.9\textwidth]{down_view}
 \end{figure}
 
 
@@ -177,7 +203,7 @@ Though simple and instructive we do not recommend this method. To get any amount
 \begin{figure}[ht]
 \caption{shows the details in the landscape at some distance}
 \centering
-\includegraphics[width=0.5\textwidth]{landscape}
+\includegraphics[width=0.9\textwidth]{landscape}
 \end{figure}
 
 
@@ -185,7 +211,7 @@ Though simple and instructive we do not recommend this method. To get any amount
 \begin{figure}[ht]
 \caption{closeup showing low appearent geometry resolution}
 \centering
-\includegraphics[width=0.5\textwidth]{shows_gradient}
+\includegraphics[width=0.9\textwidth]{shows_gradient}
 \end{figure}
 
 
@@ -193,7 +219,7 @@ Though simple and instructive we do not recommend this method. To get any amount
 \begin{figure}[ht]
 \caption{showing the side of the terrain}
 \centering
-\includegraphics[width=0.5\textwidth]{side_view}
+\includegraphics[width=0.9\textwidth]{side_view}
 \end{figure}
 
 
